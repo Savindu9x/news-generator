@@ -1,14 +1,16 @@
 from openai import OpenAI
 import os
+import streamlit as st
 from dotenv import load_dotenv
 
 # Load environment variables from a .env file
-load_dotenv()
+
 
 # Initialize the OpenAI client with the API key from environment variables
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-def news_generator(company_code, topic, audience, tone, article_length, language):
+
+def news_generator(topic, audience, tone, article_length, language):
     """
     Generates a news article based on the provided parameters using OpenAI's GPT-3.5-turbo model.
     
@@ -24,16 +26,14 @@ def news_generator(company_code, topic, audience, tone, article_length, language
     """
     # Define the prompt for the OpenAI API
     prompt = f"Generate a {article_length} news article about '{topic}' for a {audience} audience with a {tone} tone in {language}."
-    if company_code == "ai@fcode"
-      # Call the OpenAI API to generate the news article
-      response = client.chat.completions.create(
-          model="gpt-4o",
-          messages=[{"role": "user", "content": prompt}],
-          temperature=0.7,
-          max_tokens=500  # Adjust max_tokens as needed
-      )
+    
+    # Call the OpenAI API to generate the news article
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7,
+        max_tokens=500  # Adjust max_tokens as needed
+    )
     # Extract and return the generated text from the response
-      generated_text = response.choices[0].message.content
-      return generated_text
-    else:
-      return "Company Code does not match! Please enter correct company code.
+    generated_text = response.choices[0].message.content
+    return generated_text
