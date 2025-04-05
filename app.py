@@ -158,7 +158,7 @@ if selected_page == "Generator":
             st.session_state["post"] = ""  # Reset post before generating a new one
             with st.spinner("Generating post..."):
                 if not (st.session_state.topic == "" or st.session_state.audience == "" or st.session_state.tone == "") :
-                    response = news_generator(topic=st.session_state["topic"], audience=st.session_state["audience"],
+                    response = news_generator(company_code=st.session_state["company_code"],topic=st.session_state["topic"], audience=st.session_state["audience"],
                                             tone=st.session_state["tone"], article_length=st.session_state["article_length"],
                                             language=st.session_state["language"])
                     if response:
