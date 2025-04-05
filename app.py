@@ -118,7 +118,7 @@ if selected_page == "Generator":
         )
         st.session_state.topic = st.text_area(
             label="Topic",
-            placeholder="Enter your topic idea (e.g., AI in healthcare)",
+            placeholder="Enter the topic or context you want to write a article about (e.g., AI in healthcare), along with any key details and perspectives",
             height=100
         )
         st.markdown("<br>", unsafe_allow_html=True)
@@ -126,7 +126,7 @@ if selected_page == "Generator":
         # Audience input
         st.session_state.audience = st.text_input(
             label="Audience",
-            placeholder="Enter your target audience: Local Residents, International"
+            placeholder="Enter your target audience: Students, Professionals, Researchers, Local Residents, International Audience"
         )
         st.markdown("<br>", unsafe_allow_html=True)
         
@@ -134,7 +134,7 @@ if selected_page == "Generator":
         
         st.session_state.tone = st.text_input(
             label="Tone",
-            placeholder="Enter desired tone (e.g., informative, casual)"
+            placeholder="Enter desired tone (e.g., informative, casual, formal, critical, neutral)"
         )
         st.markdown("<br>", unsafe_allow_html=True)
         
@@ -149,7 +149,7 @@ if selected_page == "Generator":
         with col2:
             st.session_state.language = st.selectbox(
                 "Language",
-                options=["English", "Dutch", "French"],
+                options=["English", "Dutch", "Deutsch", "French"],
                 key="language_"
             )
         
