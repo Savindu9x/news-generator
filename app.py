@@ -7,8 +7,20 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 if not firebase_admin._apps:
-    cred = credentials.Certificate("fcode-newsgenerator-firebase-adminsdk-fbsvc-59634d891f.json")  # Replace with your service account file path
+    cred = credentials.Certificate({
+        "type": st.secrets["FIREBASE_TYPE"],
+        "project_id": st.secrets["FIREBASE_PROJECT_ID"],
+        "private_key_id": st.secrets["FIREBASE_PRIVATE_KEY_ID"],
+        "private_key": st.secrets["FIREBASE_PRIVATE_KEY"].replace("\\n", "\n"),
+        "client_email": st.secrets["FIREBASE_CLIENT_EMAIL"],
+        "client_id": st.secrets["FIREBASE_CLIENT_ID"],
+        "auth_uri": st.secrets["FIREBASE_AUTH_URI"],
+        "token_uri": st.secrets["FIREBASE_TOKEN_URI"],
+        "auth_provider_x509_cert_url": st.secrets["FIREBASE_AUTH_PROVIDER_X509_CERT_URL"],
+        "client_x509_cert_url": st.secrets["FIREBASE_CLIENT_X509_CERT_URL"]
+    })
     firebase_admin.initialize_app(cred)
+
 
 # Firestore client
 db = firestore.client()
@@ -45,7 +57,7 @@ def fetch_posts():
 def save_edited_text(topic, edited_body):
         try:
             db.collection("news_samples").document(topic).set({"topic": topic, "body": edited_body})
-            st.success(f"Post with Topic of'{topic}' saved successfully!")
+            st.success(f"{topic}' Article saved successfully!")
         except Exception as e:
             st.error(f"Error saving post: {e}")
 
@@ -156,14 +168,21 @@ if selected_page == "Generator":
 
         if st.button("Generate", key="generate", type="secondary"):
             st.session_state["post"] = ""  # Reset post before generating a new one
-            with st.spinner("Generating post..."):
+            with st.spinner("AI Agents in Action. Generating article..."):
                 if not (st.session_state.topic == "" or st.session_state.audience == "" or st.session_state.tone == "") :
-                    response = news_generator(company_code=st.session_state["company_code"],topic=st.session_state["topic"], audience=st.session_state["audience"],
+                    response = news_generator(topic=st.session_state["topic"], audience=st.session_state["audience"],
                                             tone=st.session_state["tone"], article_length=st.session_state["article_length"],
                                             language=st.session_state["language"])
                     if response:
                         # Assuming the API returns a text string as JSON
                         st.session_state["post"] = response
+                        save_edited_text(st.session_state["topic"], response)
+                        st.success("Post generated successfully!")
+                        st.session_state["topic"] = ""  # Reset topic after generating a post
+                        st.session_state["audience"] = ""  # Reset audience after generating a post
+                        st.session_state["tone"] = ""  # Reset tone after generating a post
+                        st.session_state["article_length"] = "short"  # Reset article length after generating a post
+                        st.session_state["language"] = "English"  # Reset language after generating a post                        
                     else:
                         st.error("Failed to generate post")
                 else:
@@ -206,14 +225,8 @@ elif selected_page == "Editor":
             # Center the Save button using columns
             col1, col2, col3 = st.columns([0.8, 0.8, 0.5])  # Adjusted column widths to bring columns 2 and 3 closer
             with col1:
-                if st.button("Save Edited Post"):
-                    save_edited_text(edited_topic, edited_body)
-            with col2:  # Place the button in the middle column
-                # Download button for the edited post
-                st.download_button(label="Download Data", data=edited_body, file_name=f'{edited_topic}.txt', mime='text/plain')
-            with col3:
                 #delete button for the edited post
-                if st.button("Delete Post"):
+                if st.button("Delete Article"):
                     try:
                         db.collection("news_samples").document(selected_topic).delete()
                         st.success(f"Post with Topic of'{selected_topic}' deleted successfully!")
@@ -222,6 +235,14 @@ elif selected_page == "Editor":
                         st.session_state["posts"].pop(selected_topic, None)  # Remove from posts as well
                     except Exception as e:
                         st.error(f"Error deleting post: {e}")
+                
+            with col2:  # Place the button in the middle column
+                if st.button("Save as New Article"):
+                    save_edited_text(edited_topic, edited_body)
+            with col3:
+                # Download button for the edited post
+                st.download_button(label="Download Article", data=edited_body, file_name=f'{edited_topic}.txt', mime='text/plain')
+                
                 
 elif selected_page == "My Posts":
     def clean_html(text):
