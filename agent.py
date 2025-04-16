@@ -112,7 +112,7 @@ writing_task = Task(
         5. Includes a References section at the end
     """),
     expected_output="""A polished, longer-form article in Markdown format that:
-        - Do not include a title for the article with h1 tag.
+        - Do not include a title for the article.
         - Maintains a factual yet engaging style, highlighting key facts, or expert viewpoints.
         - Presents the content in well-structured sections (H1 for title, H3 for sub-sections).
         - Presents information in an accessible yet informative way.
