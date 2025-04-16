@@ -2,6 +2,5 @@ streamlit-option-menu==0.4.0
 streamlit-quill==0.0.3
 firebase-admin==6.7.0
 python-dotenv
+pysqlite3-binary
 crewai==0.114.0
-
-
