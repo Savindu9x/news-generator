@@ -16,11 +16,31 @@ def exa_get_contents_tool(
     :param question: url of the website where content needs to fetch from.
     :return: The text contents of the web page.
     """
-    ExaSearch  = Exa(api_key=st.secrets["EXA_API_KEY"])
-    response = ExaSearch.get_contents(urls=[url], livecrawl="always",
-                             text={"include_html_tags": False}, 
-                             )
-    return response
+    api_key = st.secrets["EXA_API_KEY"]
+    endpoint = "https://api.exa.ai/contents"
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "urls": [url],
+        "text": True,
+        "livecrawl": "always"
+    }
+
+    response = requests.post(endpoint, headers=headers, json=payload)
+
+    if response.ok:
+        return response.json()
+    else:
+        return None
+    # ExaSearch  = Exa(api_key=st.secrets["EXA_API_KEY"])
+    # response = ExaSearch.get_contents(urls=[url], livecrawl="always",
+    #                          text={"include_html_tags": False}, 
+    #                          )
+    # return response
 
 search_tool = [exa_get_contents_tool]
 
