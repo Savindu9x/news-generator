@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
 from streamlit_quill import st_quill
-from intelligence import news_generator
+from agent import run_agent
 
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -102,6 +102,8 @@ if selected_page == "Generator":
         st.session_state.language = "English"
     if "post" not in st.session_state:
         st.session_state.post = ""
+    if "website_links" not in st.session_state:
+            st.session_state.website_links = []
 
     # printing the session state for debugging
 
@@ -111,11 +113,32 @@ if selected_page == "Generator":
         
         # Topic input
         #st.markdown("Topic")
-        st.session_state.company_code = st.text_input(
-            label="Company Code",
-            placeholder="Enter your company code (e.g., ABC123)",
-            value=st.session_state.company_code
+        new_link = st.text_input(
+            label="Add Website Link",
+            placeholder="Enter a website link (e.g., https://example.com)"
         )
+
+        if st.button("Add Link"):
+            if new_link and new_link not in st.session_state.website_links:
+                st.session_state.website_links.append(new_link)
+                st.success(f"Added: {new_link}")
+            elif new_link in st.session_state.website_links:
+                st.warning("This link is already in the list.")
+            else:
+                st.error("Please enter a valid link.")
+
+        if st.session_state.website_links:
+            remove_link = st.selectbox(
+            "Select a link to remove:",
+            options=st.session_state.website_links,
+            key="remove_link"
+            )
+
+            if st.button("Remove Selected Link"):
+                if remove_link in st.session_state.website_links:
+                    st.session_state.website_links.remove(remove_link)
+                    st.success(f"Removed: {remove_link}")
+
         st.session_state.topic = st.text_area(
             label="Topic",
             placeholder="Enter the topic or context you want to write a article about (e.g., AI in healthcare), along with any key details and perspectives",
@@ -169,10 +192,14 @@ if selected_page == "Generator":
         if st.button("Generate", key="generate", type="secondary"):
             st.session_state["post"] = ""  # Reset post before generating a new one
             with st.spinner("AI Agents in Action. Generating article..."):
-                if not (st.session_state.topic == "" or st.session_state.audience == "" or st.session_state.tone == "") :
-                    response = news_generator(topic=st.session_state["topic"], audience=st.session_state["audience"],
-                                            tone=st.session_state["tone"], article_length=st.session_state["article_length"],
-                                            language=st.session_state["language"])
+                if not (st.session_state.topic == ""):# or st.session_state.audience == "" or st.session_state.tone == "") :
+                    # response = news_generator(topic=st.session_state["topic"], audience=st.session_state["audience"],
+                    #                         tone=st.session_state["tone"], article_length=st.session_state["article_length"],
+                    #                         language=st.session_state["language"])
+                    response = run_agent(
+                        topic=st.session_state["topic"],
+                        links=st.session_state["website_links"]
+                    )
                     if response:
                         # Assuming the API returns a text string as JSON
                         st.session_state["post"] = response
