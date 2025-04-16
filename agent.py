@@ -1,6 +1,5 @@
 from crewai import Agent, Task, Crew, LLM
 from crewai.tools import tool
-from exa_py import Exa
 import streamlit as st
 
 # define the main llm
